@@ -1,42 +1,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <spandsp.h>
 
 #define QueueSize 5
 
-
-
-
 int randomNumber(int randMax); // Used to generate a random number for track location
 void initialize(void);
-void readParams(void);
 float benchmarkQueue(int schedule_type, int seed);
 void addToQueue(int trackNumber, int schedule_type);
 int removeFromQueue(void);
 
+int seeds[5] = {57, 123, 654, 23, 74};
 int Queue[QueueSize];
 int requestsInQueue;
-
 int totalRequests;
 int numberFileRequests;
 int totalHeadMove;
 int currentTrack;
-
 float FCFS_Result;
 float SSTF_Result;
 
-int seeds[5] = {57, 123, 654, 23, 74};
-
-
 void main() {
-
-
     for(int i = 0; i <= 4; i++ ) {
         FCFS_Result += benchmarkQueue(1, seeds[i]);
         SSTF_Result += benchmarkQueue(2, seeds[i]);
     }
-
+    // Print Results
 }
 
 void initialize() {
@@ -70,6 +59,7 @@ void addToQueue(int trackRequest, int schedule_type) {
                     requestsInQueue++;
                 break;
 
+                // 
                 case 2 : //SSTF
                     // start from the right end of the queue
                     for(index = requestsInQueue - 1; index >= 0; index-- ) {
@@ -100,7 +90,7 @@ int removeFromQueue() {
 float benchmarkQueue(int schedule_type, int seed) {
     initialize();
     srand(seed);
-    
+
     while(numberFileRequests <= 10000) {
 
         int numberTrackRequests = randomNumber(5);
@@ -127,27 +117,8 @@ float benchmarkQueue(int schedule_type, int seed) {
 
         }
     }
-
-    float average = totalHeadMove / totalRequests;
-    printf("Average: %f", average);
-
-    return average;
+    return totalHeadMove / totalRequests;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
