@@ -1,72 +1,140 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <spandsp.h>
 
-int randomNumber(void); // Used to generate a random number for track location
+#define QueueSize 5
+
+
+
+
+int randomNumber(int randMax); // Used to generate a random number for track location
 void initialize(void);
 void readParams(void);
-void addToList(int trackNumber);
-int removeFromList(void);
+float benchmarkQueue(int schedule_type, int seed);
+void addToQueue(int trackNumber, int schedule_type);
+int removeFromQueue(void);
 
-unsigned seed;
+int Queue[QueueSize];
+int requestsInQueue;
+
 int totalRequests;
 int numberFileRequests;
 int totalHeadMove;
 int currentTrack;
 
-void main()
-{
+float FCFS_Result;
+float SSTF_Result;
 
-    readParams();
-    initialize();
+int seeds[5] = {57, 123, 654, 23, 74};
 
-    while(numberFileRequests <= 10000)
-    {
-        int numberTrackRequests = 5; // Change to random int 0-5
-        for(int i = 0; i <= numberTrackRequests; i++ )
-        {
-            int trackNumber = 650; // Change to random int 0-799
-            addToList(trackNumber);
-        }
 
-        int nextTrack = removeFromList(); // Serve the next request
+void main() {
 
-        int difference = abs(nextTrack - currentTrack);
 
-        totalHeadMove += difference;
-
-        totalRequests ++;
-
-        currentTrack = nextTrack;
-
-        numberFileRequests ++;
+    for(int i = 0; i <= 4; i++ ) {
+        FCFS_Result += benchmarkQueue(1, seeds[i]);
+        SSTF_Result += benchmarkQueue(2, seeds[i]);
     }
-    float average = totalHeadMove / totalRequests;
-    printf("Average: %f", average);
+
 }
 
-void initialize()
-{
-    srand(seed);
+void initialize() {
     totalRequests = 0;
     numberFileRequests = 0;
     totalHeadMove = 0;
     currentTrack = 0;
 }
 
-void readParams()
-{
-    printf("Enter seed for random number generator");
-    scanf("%d", &seed);
-    printf("Enter seed for random number generator");
+int randomNumber(int randMax) {
+    return rand() % randMax;
 }
 
-int randomNumber()
-{
-    for(int i = 0; i < 5; i++)
-    {
-        printf(" %d", rand());
+bool isFull(){
+    return QueueSize == requestsInQueue;
+}
+
+void addToQueue(int trackRequest, int schedule_type) {
+    int index;
+
+    if(!isFull()) {
+        // if queue is empty, insert the data
+        if(requestsInQueue == 0) {
+            Queue[requestsInQueue++] = trackRequest;
+        }
+        else {
+            switch(schedule_type) {
+                case 1 : // FCFS
+                    // insert at the end of the queue
+                    Queue[requestsInQueue+1] = trackRequest;
+                    requestsInQueue++;
+                break;
+
+                case 2 : //SSTF
+                    // start from the right end of the queue
+                    for(index = requestsInQueue - 1; index >= 0; index-- ) {
+                        // if data is larger, shift existing item to the right
+                        if(trackRequest > Queue[index]) {
+                            Queue[index+1] = Queue[index];
+                        }
+                        else { break; } // Break if at the proper location
+                    }
+                    // insert the data
+                    Queue[index+1] = trackRequest;
+                    requestsInQueue++;
+                break;
+            }
+        }
     }
 }
+
+int removeFromQueue() {
+    if(requestsInQueue > 0) {
+        return Queue[--requestsInQueue];
+    }
+    else {
+        return Queue[0];
+    }
+}
+
+float benchmarkQueue(int schedule_type, int seed) {
+    initialize();
+    srand(seed);
+    
+    while(numberFileRequests <= 10000) {
+
+        int numberTrackRequests = randomNumber(5);
+
+        for(int i = 0; i <= numberTrackRequests; i++ ) {
+
+            int trackNumber = randomNumber(799);
+            addToQueue(trackNumber, schedule_type);
+        }
+
+        while(numberTrackRequests > 0) {
+            int nextTrack = removeFromQueue(); // Serve the next request
+            int difference = abs(nextTrack - currentTrack); // Calculate the distance for the read head to travel
+            totalHeadMove += difference; // Add the distance traveled to the total
+            totalRequests ++; // Increment the number of total requests
+            currentTrack = nextTrack;
+            numberTrackRequests --;
+        }
+
+        if(numberTrackRequests == 0) {
+            // move to next file
+            numberFileRequests ++;
+            // flush queue
+
+        }
+    }
+
+    float average = totalHeadMove / totalRequests;
+    printf("Average: %f", average);
+
+    return average;
+}
+
+
 
 
 
