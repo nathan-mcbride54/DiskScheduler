@@ -13,6 +13,11 @@
   <component name="ChangeListManager">
     <list default="true" id="21b740eb-4e42-4b5c-97cb-c5f0c6cf29c2" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DiskScheduler.dir/C.includecache" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DiskScheduler.dir/C.includecache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DiskScheduler.dir/main.c.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DiskScheduler.dir/main.c.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Progress/1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Progress/2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Progress/count.txt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/main.c" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -70,7 +75,8 @@
       <updated>1574349267264</updated>
       <workItem from="1574349268422" duration="7988000" />
       <workItem from="1574363311267" duration="5671000" />
-      <workItem from="1574438779751" duration="10915000" />
+      <workItem from="1574438779751" duration="26631000" />
+      <workItem from="1574784032254" duration="2942000" />
     </task>
     <task id="LOCAL-00001" summary="Added lab instructions">
       <created>1574364299842</created>

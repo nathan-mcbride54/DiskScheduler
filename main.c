@@ -2,16 +2,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define QueueSize 5
+#define QueueSize 50000
 
 int randomNumber(int randMax); // Used to generate a random number for track location
+float processQueue(void);
 void initialize(void);
-float benchmarkQueue(int schedule_type, int seed);
+void fillQueue(int schedule_type, int seed, int max_requests);
 void addToQueue(int trackNumber, int schedule_type);
+void showResults(float result);
 int removeFromQueue(void);
 
 int seeds[5] = {57, 123, 654, 23, 74};
-int Queue[QueueSize];
+int test_values[4] = {10, 100, 1000, 10000};
+long Queue [QueueSize];
 int requestsInQueue;
 int totalRequests;
 int numberFileRequests;
@@ -22,13 +25,29 @@ float SSTF_Result;
 
 void main() {
     for(int i = 0; i <= 4; i++ ) {
-        FCFS_Result += benchmarkQueue(1, seeds[i]);
-        SSTF_Result += benchmarkQueue(2, seeds[i]);
+        for(int j = 0; j <= 3; j++) {
+            fillQueue(1, seeds[i], test_values[j]);
+            float result = processQueue();
+            showResults(result);
+        }
     }
-    // Print Results
+}
+
+float processQueue() {
+    while(requestsInQueue > 0) {
+        int nextTrack = removeFromQueue(); // Serve the next request
+        int difference = abs(nextTrack - currentTrack); // Calculate the distance for the read head to travel
+        totalHeadMove += difference; // Add the distance traveled to the total
+        totalRequests ++; // Increment the number of total requests
+        currentTrack = nextTrack;
+        requestsInQueue --;
+    }
+    return totalHeadMove / (float) numberFileRequests;
 }
 
 void initialize() {
+    // Clear out irrelevent values...
+    // Build Queue
     totalRequests = 0;
     numberFileRequests = 0;
     totalHeadMove = 0;
@@ -39,7 +58,7 @@ int randomNumber(int randMax) {
     return rand() % randMax;
 }
 
-bool isFull(){
+bool isFull() {
     return QueueSize == requestsInQueue;
 }
 
@@ -55,11 +74,12 @@ void addToQueue(int trackRequest, int schedule_type) {
             switch(schedule_type) {
                 case 1 : // FCFS
                     // insert at the end of the queue
-                    Queue[requestsInQueue+1] = trackRequest;
-                    requestsInQueue++;
+                    //Queue[requestsInQueue+1] = trackRequest;
+                    //requestsInQueue++;
+
+
                 break;
 
-                // 
                 case 2 : //SSTF
                     // start from the right end of the queue
                     for(index = requestsInQueue - 1; index >= 0; index-- ) {
@@ -69,7 +89,7 @@ void addToQueue(int trackRequest, int schedule_type) {
                         }
                         else { break; } // Break if at the proper location
                     }
-                    // insert the data
+                    // insert the data Passenger checks onto flight
                     Queue[index+1] = trackRequest;
                     requestsInQueue++;
                 break;
@@ -87,11 +107,11 @@ int removeFromQueue() {
     }
 }
 
-float benchmarkQueue(int schedule_type, int seed) {
+void fillQueue(int schedule_type, int seed, int max_requests) {
     initialize();
     srand(seed);
 
-    while(numberFileRequests <= 10000) {
+    while(numberFileRequests <= max_requests) {
 
         int numberTrackRequests = randomNumber(5);
 
@@ -101,23 +121,9 @@ float benchmarkQueue(int schedule_type, int seed) {
             addToQueue(trackNumber, schedule_type);
         }
 
-        while(numberTrackRequests > 0) {
-            int nextTrack = removeFromQueue(); // Serve the next request
-            int difference = abs(nextTrack - currentTrack); // Calculate the distance for the read head to travel
-            totalHeadMove += difference; // Add the distance traveled to the total
-            totalRequests ++; // Increment the number of total requests
-            currentTrack = nextTrack;
-            numberTrackRequests --;
-        }
-
-        if(numberTrackRequests == 0) {
-            // move to next file
-            numberFileRequests ++;
-            // flush queue
-
-        }
+        // move to next file
+        numberFileRequests ++;
     }
-    return totalHeadMove / totalRequests;
 }
 
 
