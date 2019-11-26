@@ -5,31 +5,27 @@
 #define QueueSize 50000
 
 int randomNumber(int randMax); // Used to generate a random number for track location
-float processQueue(void);
-void initialize(void);
 void fillQueue(int schedule_type, int seed, int max_requests);
 void addToQueue(int trackNumber, int schedule_type);
+float processQueue(void);
 void showResults(float result);
 int removeFromQueue(void);
 
 int seeds[5] = {57, 123, 654, 23, 74};
-int test_values[4] = {10, 100, 1000, 10000};
+int test_values[4] = {10, 100, 1000, 10000, 100000};
 long Queue [QueueSize];
 int requestsInQueue;
 int totalRequests;
 int numberFileRequests;
 int totalHeadMove;
 int currentTrack;
-float FCFS_Result;
-float SSTF_Result;
+
 
 void main() {
     for(int i = 0; i <= 4; i++ ) {
-        for(int j = 0; j <= 3; j++) {
-            fillQueue(1, seeds[i], test_values[j]);
-            float result = processQueue();
-            showResults(result);
-        }
+        fillQueue(1, seeds[i], test_values[i]);
+        float result = processQueue();
+        showResults(result);
     }
 }
 
@@ -74,10 +70,8 @@ void addToQueue(int trackRequest, int schedule_type) {
             switch(schedule_type) {
                 case 1 : // FCFS
                     // insert at the end of the queue
-                    //Queue[requestsInQueue+1] = trackRequest;
-                    //requestsInQueue++;
-
-
+                    Queue[requestsInQueue+1] = trackRequest;
+                    requestsInQueue++;
                 break;
 
                 case 2 : //SSTF
@@ -100,7 +94,12 @@ void addToQueue(int trackRequest, int schedule_type) {
 
 int removeFromQueue() {
     if(requestsInQueue > 0) {
-        return Queue[--requestsInQueue];
+        int next = Queue[0];
+        for(int i = 0; i <= requestsInQueue -1; i++) {
+            Queue[i] = Queue[i + 1];
+        }
+        -- requestsInQueue;
+        return next;
     }
     else {
         return Queue[0];
@@ -120,7 +119,6 @@ void fillQueue(int schedule_type, int seed, int max_requests) {
             int trackNumber = randomNumber(799);
             addToQueue(trackNumber, schedule_type);
         }
-
         // move to next file
         numberFileRequests ++;
     }
