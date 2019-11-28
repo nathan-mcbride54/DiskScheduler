@@ -71,8 +71,10 @@ bool isFull() {
     return QueueSize == requestsInQueue;
 }
 
-void addToQueue(int trackRequest, int schedule_type) {
+void addToQueue( int trackRequest, int schedule_type) {
     int index;
+    int insertDistance;
+    int indexDistance;
 
     if(!isFull()) {
         // if queue is empty, insert the data
@@ -82,23 +84,21 @@ void addToQueue(int trackRequest, int schedule_type) {
         else {
             switch(schedule_type) {
                 case 1 : // FCFS
-                    // insert at the end of the queue
-                    Queue[requestsInQueue+1] = trackRequest;
-                    requestsInQueue++;
+                    Queue[requestsInQueue+1] = trackRequest; // insert at the end of the queue
+                    requestsInQueue++; // Increment the number of requests currently in queue
                 break;
 
                 case 2 : //SSTF
-                    // start from the right end of the queue
-                    for(index = requestsInQueue - 1; index >= 0; index-- ) {
-                        // if data is larger, shift existing item to the right
-                        if(trackRequest > Queue[index]) {
-                            Queue[index+1] = Queue[index];
+                    for(index = requestsInQueue - 1; index >= 0; index-- ) { // Start at the tail of the queue, working towards the head
+                        insertDistance = trackRequest - Queue[0];
+                        indexDistance = Queue[index] - Queue[0];
+                        if(insertDistance > indexDistance) {
+                            Queue[index+1] = Queue[index]; // Copy the current value of index to index + 1
                         }
-                        else { break; } // Break if at the proper location
+                        else { break; } // Track request belongs at index
                     }
-                    // insert the data Passenger checks onto flight
-                    Queue[index+1] = trackRequest;
-                    requestsInQueue++;
+                    Queue[index] = trackRequest; // Put the track request in the queue
+                    requestsInQueue++; // Increment the number of requests currently in queue
                 break;
             }
         }
@@ -107,16 +107,14 @@ void addToQueue(int trackRequest, int schedule_type) {
 
 int removeFromQueue() {
     if(requestsInQueue > 0) {
-        int next = Queue[0];
+        int front = Queue[0]; // Grab the current front of the queue
         for(int i = 0; i <= requestsInQueue -1; i++) {
-            Queue[i] = Queue[i + 1];
+            Queue[i] = Queue[i + 1]; // Shuffle the elements of the queue to make a new front
         }
-        -- requestsInQueue;
-        return next;
+        -- requestsInQueue; // Update number of requests in queue
+        return front;
     }
-    else {
-        return Queue[0];
-    }
+    else { return 0; }
 }
 
 void fillQueue(int schedule_type, int seed, int max_requests) {
