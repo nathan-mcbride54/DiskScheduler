@@ -6,14 +6,14 @@
 
 int randomNumber(int randMax); // Used to generate a random number for track location
 void fillQueue(int schedule_type, int seed, int max_requests);
-void addToQueue(int trackNumber, int schedule_type);
+void addToQueue(int trackRequest, int schedule_type);
 float processQueue(void);
-void showResults(float result);
+void showResults(float result, int seed_used, int test_value);
 int removeFromQueue(void);
 
 int seeds[5] = {57, 123, 654, 23, 74};
-int test_values[4] = {10, 100, 1000, 10000, 100000};
-long Queue [QueueSize];
+int test_values[4] = {10, 100, 1000, 10000};
+long Queue[QueueSize];
 int requestsInQueue;
 int totalRequests;
 int numberFileRequests;
@@ -23,10 +23,20 @@ int currentTrack;
 
 void main() {
     for(int i = 0; i <= 4; i++ ) {
-        fillQueue(1, seeds[i], test_values[i]);
-        float result = processQueue();
-        showResults(result);
+        for(int j = 0; j <= 3; j++) {
+            fillQueue(1, seeds[i], test_values[j]);
+            float result = processQueue();
+            showResults(result, i, j);
+        }
     }
+}
+
+void showResults(float result, int seed_used, int test_value) {
+    printf("\n===================================\n");
+    printf("File Requests Simulated: %d\n", test_value);
+    printf("Seed Used: %d\n", seed_used);
+    printf("Result: %f\n", result);
+    printf("===================================\n");
 }
 
 float processQueue() {
@@ -41,10 +51,13 @@ float processQueue() {
     return totalHeadMove / (float) numberFileRequests;
 }
 
-void initialize() {
+void initialize(int queue_size) {
     // Clear out irrelevent values...
     // Build Queue
+    // Can I make this function return a new queue?
+    Queue[]
     totalRequests = 0;
+    requestsInQueue = 0;
     numberFileRequests = 0;
     totalHeadMove = 0;
     currentTrack = 0;
@@ -107,7 +120,7 @@ int removeFromQueue() {
 }
 
 void fillQueue(int schedule_type, int seed, int max_requests) {
-    initialize();
+    initialize(max_requests);
     srand(seed);
 
     while(numberFileRequests <= max_requests) {
