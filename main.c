@@ -1,15 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 #define QueueSize 50000
 
-int randomNumber(int randMax); // Used to generate a random number for track location
-void fillQueue(int schedule_type, int seed, int max_requests);
-void addToQueue(int trackRequest, int schedule_type);
-float processQueue(void);
-void showResults(float result, int seed_used, int test_value);
-int removeFromQueue(void);
+int RandomNumber(int randMax); // Used to generate a random number for track location
+void FillQueue(int schedule_type, int seed, int max_requests);
+void AddToQueue(int trackRequest, int schedule_type);
+float ProcessQueue(void);
+void ShowResults(float result, int seed_used, int test_value, int schedule_type);
+int RemoveFromQueue(void);
+void AutoSimulation(void);
+char GetUserInput(void);
+char Prompt(void);
 
 int seeds[5] = {57, 123, 654, 23, 74};
 int test_values[4] = {10, 100, 1000, 10000};
@@ -22,26 +26,69 @@ int currentTrack;
 
 
 void main() {
-    for(int i = 0; i <= 4; i++ ) {
-        for(int j = 0; j <= 3; j++) {
-            fillQueue(1, seeds[i], test_values[j]);
-            float result = processQueue();
-            showResults(result, i, j);
+    bool quit = false;
+    while(!quit) {
+        printf("Disk Scheduling Simulator\n");
+        printf("=========================\n");
+        printf("Enter 'A' to test all\n");
+        printf("Enter 'Q' to quit\n");
+        char userChoice = GetUserInput();
+        switch(userChoice) {
+            case 'A' :
+                printf("Testing FCFS and SSTF with the following values...\n");
+                printf("Seeds: 57, 123, 654, 23, 74\n");
+                printf("File Requests: 10, 100, 1000, 10000\n");
+                AutoSimulation();
+            break;
+            case 'Q' :
+                quit = true;
+            break;
         }
     }
 }
 
-void showResults(float result, int seed_used, int test_value) {
-    printf("\n===================================\n");
+char GetUserInput()
+{
+    char Prompt() {
+        char input[100];
+        printf("-> ");
+        scanf("%s", &input);
+        return toupper(input[0]);
+    }
+
+    // Input errors are caught by matching to only the specific characters that are valid in this program.
+    while(1) {
+        char input = Prompt();
+        if(input == 'A' || input == 'Q') { return input; }
+        else { printf("Invalid Input\n"); }
+    }
+}
+
+void AutoSimulation() {
+//    for(int schedule = 1; schedule > 3; schedule++) {
+        for(int i = 0; i <= 4; i++ ) {
+            for(int j = 0; j <= 3; j++) {
+                FillQueue(2, seeds[i], test_values[j]);
+                float result = ProcessQueue();
+                ShowResults(result, seeds[i], test_values[j], 2);
+            }
+        }
+//    }
+}
+
+void ShowResults(float result, int seed_used, int test_value, int schedule_type) {
+    printf("===================================\n");
+    if(schedule_type == 1) { printf("Schedule Type: FCFS\n"); }
+    if(schedule_type == 2) { printf("Schedule Type: SSTF\n"); }
     printf("File Requests Simulated: %d\n", test_value);
     printf("Seed Used: %d\n", seed_used);
     printf("Result: %f\n", result);
     printf("===================================\n");
 }
 
-float processQueue() {
+float ProcessQueue() {
     while(requestsInQueue > 0) {
-        int nextTrack = removeFromQueue(); // Serve the next request
+        int nextTrack = RemoveFromQueue(); // Serve the next request
         int difference = abs(nextTrack - currentTrack); // Calculate the distance for the read head to travel
         totalHeadMove += difference; // Add the distance traveled to the total
         totalRequests ++; // Increment the number of total requests
@@ -51,11 +98,10 @@ float processQueue() {
     return totalHeadMove / (float) numberFileRequests;
 }
 
-void initialize(int queue_size) {
-    // Clear out irrelevent values...
-    // Build Queue
-    // Can I make this function return a new queue?
-    Queue[]
+void Initialize(int queue_size) {
+    for(int index = queue_size; index >=0; index--) {
+        Queue[index] = 0;
+    }
     totalRequests = 0;
     requestsInQueue = 0;
     numberFileRequests = 0;
@@ -63,20 +109,20 @@ void initialize(int queue_size) {
     currentTrack = 0;
 }
 
-int randomNumber(int randMax) {
+int RandomNumber(int randMax) {
     return rand() % randMax;
 }
 
-bool isFull() {
+bool IsFull() {
     return QueueSize == requestsInQueue;
 }
 
-void addToQueue( int trackRequest, int schedule_type) {
+void AddToQueue( int trackRequest, int schedule_type) {
     int index;
     int insertDistance;
     int indexDistance;
 
-    if(!isFull()) {
+    if(!IsFull()) {
         // if queue is empty, insert the data
         if(requestsInQueue == 0) {
             Queue[requestsInQueue++] = trackRequest;
@@ -105,7 +151,7 @@ void addToQueue( int trackRequest, int schedule_type) {
     }
 }
 
-int removeFromQueue() {
+int RemoveFromQueue() {
     if(requestsInQueue > 0) {
         int front = Queue[0]; // Grab the current front of the queue
         for(int i = 0; i <= requestsInQueue -1; i++) {
@@ -117,21 +163,20 @@ int removeFromQueue() {
     else { return 0; }
 }
 
-void fillQueue(int schedule_type, int seed, int max_requests) {
-    initialize(max_requests);
+void FillQueue(int schedule_type, int seed, int max_requests) {
+    Initialize(max_requests);
     srand(seed);
 
     while(numberFileRequests <= max_requests) {
 
-        int numberTrackRequests = randomNumber(5);
+        int numberTrackRequests = RandomNumber(5);
 
         for(int i = 0; i <= numberTrackRequests; i++ ) {
 
-            int trackNumber = randomNumber(799);
-            addToQueue(trackNumber, schedule_type);
+            int trackNumber = RandomNumber(799);
+            AddToQueue(trackNumber, schedule_type);
         }
-        // move to next file
-        numberFileRequests ++;
+        numberFileRequests ++; // move to next file
     }
 }
 
